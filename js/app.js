@@ -264,20 +264,24 @@ if (location.pathname.endsWith('presensi.html')) {
     const kajianList = getData('kajian', []);
     const kajian = kajianList.find(k=>String(k.id)===kode);
     if (!kajian) {
-      showNotif('⚠️ Kode kajian tidak ditemukan.', "#b91c1c", "presensiResult");
+      // Ini penting, agar jika scan QR tapi data belum ada, error muncul
+      document.getElementById('presensiResult').style.color = "#b91c1c";
+      document.getElementById('presensiResult').innerHTML = '⚠️ Data kajian/QR belum ada di sistem.<br>Silakan hubungi admin untuk generate QR/kajian terlebih dahulu.';
       return;
     }
     const now = new Date();
     const dateNow = now.toISOString().slice(0,10);
     if (kajian.tanggal !== dateNow) {
-      showNotif('⏰ Waktu presensi sudah berakhir (tanggal tidak sesuai).', "#b91c1c", "presensiResult");
+      document.getElementById('presensiResult').style.color = "#b91c1c";
+      document.getElementById('presensiResult').innerText = '⏰ Waktu presensi sudah berakhir (tanggal tidak sesuai).';
       return;
     }
     const jamMulai = kajian.jam_mulai;
     const jamSelesai = kajian.jam_selesai;
     const jamSekarang = now.toTimeString().slice(0,5);
     if (jamSekarang < jamMulai || jamSekarang > jamSelesai) {
-      showNotif('⏰ Waktu presensi sudah berakhir.', "#b91c1c", "presensiResult");
+      document.getElementById('presensiResult').style.color = "#b91c1c";
+      document.getElementById('presensiResult').innerText = '⏰ Waktu presensi sudah berakhir.';
       return;
     }
     let presensiList = getData('presensi', []);
@@ -286,7 +290,8 @@ if (location.pathname.endsWith('presensi.html')) {
       waktu: now.toLocaleString()
     });
     setData('presensi', presensiList);
-    showNotif('✅ Presensi berhasil, terima kasih telah hadir.', "#22c55e", "presensiResult");
+    document.getElementById('presensiResult').style.color = "#22c55e";
+    document.getElementById('presensiResult').innerText = '✅ Presensi berhasil, terima kasih telah hadir.';
     document.getElementById('presensiForm').querySelector('button').disabled = true;
   }
 }

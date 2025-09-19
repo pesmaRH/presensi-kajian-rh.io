@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Kelola Jamaah</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="admin.html">Admin</a>
+    <a href="jamaah.html">Jamaah</a>
+    <a href="kajian.html">Kajian</a>
+    <a href="rekap.html">Rekap</a>
+    <a href="login.html" onclick="logout()">Logout</a>
+  </nav>
+  <div class="container">
+    <h2>Data Jamaah</h2>
+    <div id="jamaahList"></div>
+    <h3>Tambah Jamaah</h3>
+    <form id="addJamaahForm">
+      <input type="text" id="jamaahNama" placeholder="Nama Jamaah" required>
+      <input type="text" id="jamaahID" placeholder="ID Jamaah" required>
+      <button type="submit">Tambah</button>
+    </form>
+  </div>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Rekap Presensi</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="admin.html">Admin</a>
+    <a href="jamaah.html">Jamaah</a>
+    <a href="kajian.html">Kajian</a>
+    <a href="rekap.html">Rekap</a>
+    <a href="login.html" onclick="logout()">Logout</a>
+  </nav>
+  <div class="container">
+    <h2>Rekap Presensi</h2>
+    <div>
+      <select id="rekapKajianSelect"></select>
+      <button id="downloadCSV">Download CSV</button>
+    </div>
+    <table id="rekapTable"></table>
+  </div>
+  <script src="js/FileSaver.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

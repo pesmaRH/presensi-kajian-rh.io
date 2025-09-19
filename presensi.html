@@ -9,12 +9,22 @@
   <div class="container">
     <h1>Presensi Kajian</h1>
     <form id="presensiForm">
-      <input type="text" id="inputKode" placeholder="Scan QR atau input kode" required>
-      <input type="text" id="jamaahId" placeholder="ID Jamaah" required>
+      <input type="text" id="inputKode" placeholder="Scan QR Kajian" readonly required>
       <button type="submit">Presensi</button>
     </form>
     <div id="presensiResult"></div>
   </div>
+  <script>
+    // Otomatis submit jika sudah ada kode dari QR di URL (presensi.html?id=xx)
+    window.onload = function() {
+      const urlParams = new URLSearchParams(location.search);
+      const id_kajian = urlParams.get('id');
+      if (id_kajian) {
+        document.getElementById('inputKode').value = id_kajian;
+        document.getElementById('presensiForm').requestSubmit();
+      }
+    }
+  </script>
   <script src="js/app.js"></script>
 </body>
 </html>

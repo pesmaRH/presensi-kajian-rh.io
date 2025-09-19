@@ -3,28 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <title>Presensi Jamaah</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    #qr-reader { width: 100%; max-width: 360px; margin: 0 auto; }
+    #qr-reader__dashboard_section_swaplink { font-size: .9em; }
+    @media (max-width:600px){
+      #qr-reader{max-width:98vw;}
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <h1>Presensi Kajian</h1>
-    <form id="presensiForm">
-      <input type="text" id="inputKode" placeholder="Scan QR Kajian" readonly required>
+    <div id="qr-reader"></div>
+    <form id="presensiForm" style="margin-top:1em;display:none;">
+      <input type="text" id="inputKode" readonly required>
       <button type="submit">Presensi</button>
     </form>
     <div id="presensiResult"></div>
   </div>
+  <!-- Lib QR dari CDN -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.10/minified/html5-qrcode.min.js"></script>
+  <script src="js/app.js"></script>
   <script>
-    // Otomatis submit jika sudah ada kode dari QR di URL (presensi.html?id=xx)
-    window.onload = function() {
-      const urlParams = new URLSearchParams(location.search);
-      const id_kajian = urlParams.get('id');
-      if (id_kajian) {
-        document.getElementById('inputKode').value = id_kajian;
+    // QR SCANNER
+    let lastScanned = "";
+    function onScanSuccess(decodedText, decodedResult) {
+      if(decodedText && decodedText !== lastScanned){
+        lastScanned = decodedText;
+        // Ekstrak id dari link "presensi.html?id=xx" atau kode langsung
+        let id = "";
+        try {
+          let url = new URL(decodedText, location.origin);
+          id = url.searchParams.get('id') || decodedText;
+        } catch {
+          id = decodedText;
+        }
+        document.getElementById('inputKode').value = id;
+        document.getElementById('presensiForm').style.display="block";
         document.getElementById('presensiForm').requestSubmit();
       }
     }
+    let qr = new Html5Qrcode("qr-reader");
+    Html5Qrcode.getCameras().then(devices => {
+      let cameraId = devices && devices.length ? devices[0].id : null;
+      qr.start(
+        cameraId,
+        { fps: 10, qrbox: {width:260, height:260} },
+        onScanSuccess
+      );
+    });
   </script>
-  <script src="js/app.js"></script>
 </body>
 </html>

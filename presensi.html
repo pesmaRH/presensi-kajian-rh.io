@@ -12,11 +12,13 @@
       #qr-reader{max-width:98vw;}
     }
     #presensiResult {margin-top:1em;}
+    #cameraSelect {margin-bottom:1em;}
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Presensi Kajian</h1>
+    <select id="cameraSelect" style="display:none"></select>
     <div id="qr-reader"></div>
     <form id="presensiForm" style="margin-top:1em;display:none;">
       <input type="text" id="inputKode" readonly required>
@@ -28,13 +30,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <script src="js/app.js"></script>
   <script>
-    // QR SCANNER
     let lastScanned = "";
+    let qr = new Html5Qrcode("qr-reader");
+    let currentCameraId = null;
+
     function showResult(msg, color="#b91c1c") {
       const el = document.getElementById('presensiResult');
       el.style.color = color;
       el.innerHTML = msg;
     }
+
     function onScanSuccess(decodedText, decodedResult) {
       if(decodedText && decodedText !== lastScanned){
         lastScanned = decodedText;
@@ -60,14 +65,51 @@
         document.getElementById('presensiForm').requestSubmit();
       }
     }
-    let qr = new Html5Qrcode("qr-reader");
+
+    function startQr(cameraId) {
+      qr.stop().then(() => {
+        qr.start(
+          cameraId,
+          { fps: 10, qrbox: {width:260, height:260} },
+          onScanSuccess
+        );
+      }).catch(()=>{
+        // Start for the first time
+        qr.start(
+          cameraId,
+          { fps: 10, qrbox: {width:260, height:260} },
+          onScanSuccess
+        );
+      });
+    }
+
+    // Inisialisasi kamera
     Html5Qrcode.getCameras().then(devices => {
-      let cameraId = devices && devices.length ? devices[0].id : null;
-      qr.start(
-        cameraId,
-        { fps: 10, qrbox: {width:260, height:260} },
-        onScanSuccess
-      );
+      if (!devices || devices.length === 0) {
+        showResult('Tidak ditemukan kamera pada perangkat ini.');
+        return;
+      }
+      const select = document.getElementById('cameraSelect');
+      select.innerHTML = "";
+      // Prefer kamera belakang (mengandung "back" atau "environment")
+      let prefer = devices.findIndex(cam => /back|environment/i.test(cam.label));
+      if (prefer < 0) prefer = 0;
+      devices.forEach((device, idx) => {
+        const opt = document.createElement('option');
+        opt.value = device.id;
+        opt.textContent = device.label || `Kamera ${idx+1}`;
+        select.appendChild(opt);
+      });
+      select.selectedIndex = prefer;
+      select.style.display = devices.length > 1 ? '' : 'none';
+      currentCameraId = devices[prefer].id;
+      startQr(currentCameraId);
+
+      // Ganti kamera jika dropdown berubah
+      select.onchange = function() {
+        currentCameraId = select.value;
+        startQr(currentCameraId);
+      };
     });
   </script>
 </body>

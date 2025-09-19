@@ -11,6 +11,7 @@
     @media (max-width:600px){
       #qr-reader{max-width:98vw;}
     }
+    #presensiResult {margin-top:1em;}
   </style>
 </head>
 <body>
@@ -29,6 +30,11 @@
   <script>
     // QR SCANNER
     let lastScanned = "";
+    function showResult(msg, color="#b91c1c") {
+      const el = document.getElementById('presensiResult');
+      el.style.color = color;
+      el.innerHTML = msg;
+    }
     function onScanSuccess(decodedText, decodedResult) {
       if(decodedText && decodedText !== lastScanned){
         lastScanned = decodedText;
@@ -41,6 +47,15 @@
           id = decodedText;
         }
         document.getElementById('inputKode').value = id;
+        // Cek apakah data kajian/id sudah ada
+        let kajianList = [];
+        try {
+          kajianList = JSON.parse(localStorage.getItem('kajian') || '[]');
+        } catch {}
+        if (!kajianList.find(k=>String(k.id)===id)) {
+          showResult('⚠️ Data kajian/QR belum ada di sistem.<br>Silakan hubungi admin untuk generate QR/kajian terlebih dahulu.');
+          return;
+        }
         document.getElementById('presensiForm').style.display="block";
         document.getElementById('presensiForm').requestSubmit();
       }

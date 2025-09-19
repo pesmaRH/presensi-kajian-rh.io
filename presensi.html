@@ -7,18 +7,15 @@
   <link rel="stylesheet" href="css/style.css">
   <style>
     #qr-reader { width: 100%; max-width: 360px; margin: 0 auto; }
-    #qr-reader__dashboard_section_swaplink { font-size: .9em; }
     @media (max-width:600px){
       #qr-reader{max-width:98vw;}
     }
     #presensiResult {margin-top:1em;}
-    #cameraSelect {margin-bottom:1em;}
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Presensi Kajian</h1>
-    <select id="cameraSelect" style="display:none"></select>
     <div id="qr-reader"></div>
     <form id="presensiForm" style="margin-top:1em;display:none;">
       <input type="text" id="inputKode" readonly required>
@@ -32,7 +29,6 @@
   <script>
     let lastScanned = "";
     let qr = new Html5Qrcode("qr-reader");
-    let currentCameraId = null;
 
     function showResult(msg, color="#b91c1c") {
       const el = document.getElementById('presensiResult');
@@ -66,50 +62,20 @@
       }
     }
 
-    function startQr(cameraId) {
-      qr.stop().then(() => {
-        qr.start(
-          cameraId,
-          { fps: 10, qrbox: {width:260, height:260} },
-          onScanSuccess
-        );
-      }).catch(()=>{
-        // Start for the first time
-        qr.start(
-          cameraId,
-          { fps: 10, qrbox: {width:260, height:260} },
-          onScanSuccess
-        );
-      });
-    }
-
-    // Inisialisasi kamera
+    // Inisialisasi kamera belakang (jika ada)
     Html5Qrcode.getCameras().then(devices => {
       if (!devices || devices.length === 0) {
         showResult('Tidak ditemukan kamera pada perangkat ini.');
         return;
       }
-      const select = document.getElementById('cameraSelect');
-      select.innerHTML = "";
-      // Prefer kamera belakang (mengandung "back" atau "environment")
-      let prefer = devices.findIndex(cam => /back|environment/i.test(cam.label));
-      if (prefer < 0) prefer = 0;
-      devices.forEach((device, idx) => {
-        const opt = document.createElement('option');
-        opt.value = device.id;
-        opt.textContent = device.label || `Kamera ${idx+1}`;
-        select.appendChild(opt);
-      });
-      select.selectedIndex = prefer;
-      select.style.display = devices.length > 1 ? '' : 'none';
-      currentCameraId = devices[prefer].id;
-      startQr(currentCameraId);
-
-      // Ganti kamera jika dropdown berubah
-      select.onchange = function() {
-        currentCameraId = select.value;
-        startQr(currentCameraId);
-      };
+      // Cari kamera belakang
+      let prefer = devices.find(cam => /back|environment/i.test(cam.label));
+      let cameraId = prefer ? prefer.id : devices[0].id;
+      qr.start(
+        cameraId,
+        { fps: 10, qrbox: {width:260, height:260} },
+        onScanSuccess
+      );
     });
   </script>
 </body>

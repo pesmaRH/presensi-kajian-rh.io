@@ -5,6 +5,21 @@ body {
   padding: 0;
 }
 
+.container, .centered, .login-container {
+  max-width: 500px;
+  margin: 60px auto;
+  background: #fff;
+  padding: 2em;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+@media (max-width: 600px) {
+  .centered, .login-container, .container {
+    max-width: 98vw;
+    padding: 1em;
+  }
+}
 .centered {
   max-width: 400px;
   margin: 100px auto;
